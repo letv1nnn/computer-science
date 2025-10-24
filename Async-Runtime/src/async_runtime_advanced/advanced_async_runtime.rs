@@ -1,16 +1,17 @@
-use std::future::Future;
-use std::panic::catch_unwind;
-use std::thread;
 use std::time::Duration;
+use std::{future::Future, panic::catch_unwind, thread};
 use std::sync::LazyLock;
-
 use async_task::{Runnable, Task};
 use flume::{Sender, Receiver};
 
 #[derive(Debug, Clone, Copy)]
 pub enum FutureType {
     High,
-    Low
+    Low,
+}
+
+pub trait FutureOrderLabel: Future {
+    fn get_order(&self) -> FutureType;
 }
 
 // implementing a mini runtime
@@ -43,38 +44,31 @@ impl Runtime {
             std::env::set_var("LOW_NUM", self.low_num.to_string());
             };
             // Warm-up dummy futures (delay to ensure threads spawn)
-            let high = spawn_task!(
+            let high = crate::spawn_task!(
                 async {
                     std::thread::sleep(std::time::Duration::from_millis(100));
                 },
                 FutureType::High
             );
-            let low = spawn_task!(
+            let low = crate::spawn_task!(
                 async {
                     std::thread::sleep(std::time::Duration::from_millis(100));
                 },
                 FutureType::Low
             );
         
-            join!(high, low);
+            crate::join!(high, low);
         }
     
 }
 
-
-// task spawning
 pub fn spawn_task<F, T>(future: F, order: FutureType) -> Task<T>
 where
-F: Future<Output = T> + Send + 'static,
-T: Send + 'static,
+    F: Future<Output = T> + Send + 'static,
+    T: Send + 'static
 {
-
-
-    static HIGH_CHANNEL: LazyLock<(Sender<Runnable>, Receiver<Runnable>)> =
-        LazyLock::new(|| flume::unbounded::<Runnable>());
-
-    static LOW_CHANNEL: LazyLock<(Sender<Runnable>, Receiver<Runnable>)> =
-        LazyLock::new(|| flume::unbounded::<Runnable>());
+    static HIGH_CHANNEL: LazyLock<(Sender<Runnable>, Receiver<Runnable>)> = LazyLock::new(|| flume::unbounded::<Runnable>());
+    static LOW_CHANNEL: LazyLock<(Sender<Runnable>, Receiver<Runnable>)> = LazyLock::new(|| flume::unbounded::<Runnable>());
 
     static HIGH_QUEUE: LazyLock<Sender<Runnable>> = LazyLock::new(|| {
         for _ in 0..2 {
@@ -138,42 +132,4 @@ T: Send + 'static,
     let (runnable, task) = async_task::spawn(future, schedule);
     runnable.schedule();
     return task;
-}
-
-// Creating spawn_task, join and try_join macros, just like in tokio.
-#[macro_export]
-macro_rules! spawn_task {
-    ($future:expr) => {
-        spawn_task!($future. FutureType::Low)
-    };
-    ($future:expr, $order:expr) => {
-        spawn_task($future, $order)
-    };
-}
-
-#[macro_export]
-macro_rules! join {
-    ($($future:expr), *) => {
-        {
-            let mut results = Vec::new();
-            $(
-                results.push(futures_lite::future::block_on($future));
-            )*
-            results
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! try_join {
-    ($($future:expr), *) => {
-        {
-            let mut results = Vec::new();
-            $(
-                let result = catch_unwind(|| future::block_on($future));
-                results.push(result);
-            )*
-            results
-        }
-    };
 }

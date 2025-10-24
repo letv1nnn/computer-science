@@ -74,3 +74,5 @@ if self.counter < 5 {
     Poll::Ready(self.counter)
 }
 ```
+
+***Context*** is basically a wrapper around the waker in the poll function. A waker is basically reschedualing the future to be polled again after execution. Basically, when the task is been executing, it is putted in  the queue and each future/task is being enqueued and polled...
