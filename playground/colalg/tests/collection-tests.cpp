@@ -1,17 +1,34 @@
-#include "./include/vector.hpp"
 #include <assert.h>
+#include "../include/collections/vector.hpp"
+#include "../include/collections/bstree.hpp"
 
 #define TEST_HEADER(header) std::cout << "\t<===> TEST: " << (header) << " <===>\n";
 #define TEST_PASSED(action) std::cout << "PASSED: " << (action) << '\n';
 #define TEST_ALL_PASSED std::cout << "All tests PASSED ✅\n";
 
 void vector_test();
+void bstree_test();
 
 int main(int argc, char **argv) {
     
+    bstree_test();
     vector_test();
 
     return 0;
+}
+
+void bstree_test() {
+    TEST_HEADER("binary search tree");
+
+    bstree<int> *tree = new bstree<int>(10);
+    
+    tree->insert(5);
+    tree->insert(11);
+    tree->insert(20);
+
+    std::cout << tree << '\n';
+
+    TEST_ALL_PASSED
 }
 
 void vector_test() {
@@ -66,7 +83,7 @@ void vector_test() {
     assert(v1.size() == 0);
     TEST_PASSED("clear");
 
-    TEST_ALL_PASSED;
+    TEST_ALL_PASSED
 }
 
 
