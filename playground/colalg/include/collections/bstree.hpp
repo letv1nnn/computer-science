@@ -2,6 +2,7 @@
 
 #include <new>
 #include <ostream>
+#include <queue>
 
 template <typename T>
 class node {
@@ -10,6 +11,7 @@ public:
     node *left_, *right_; 
 
 public:
+    node();
     node(T val);
     node(const node& other);
     ~node();
@@ -24,7 +26,6 @@ protected:
     // traversal functions
     void postorder_deletion(node<T> *root);
     void inorder_cout(node<T>* root, std::ostream& os) const;
-    bool equal_trees(node<T> *r1, node<T> *r2) const;
     node<T>* remove_node(node<T>* r, T val);
 public:
     // constructors
@@ -54,6 +55,10 @@ public:
 };
 
 template <typename T>
+node<T>::node()
+    : val_(nullptr), left_(nullptr), right_(nullptr) {}
+
+template <typename T>
 node<T>::node(T val)
     : val_(val), left_(nullptr), right_(nullptr) {}
 
@@ -78,16 +83,32 @@ node<T>& node<T>::operator=(const node<T>& other) {
 }
 
 template <typename T>
-bool bstree<T>::equal_trees(node<T> *r1, node<T> *r2) const {
-    if (!r1 || !r2) return false;
-    bool left = equal_trees(r1->left, r2->left);
-    bool right = equal_trees(r1->left, r2->left);
-    return left == right;
-}
-
-template <typename T>
 bool bstree<T>::operator==(const bstree<T>& other) {
-    return equal_trees(root_, other.root_); 
+    if (!root_ && !other.root_) return true;
+    if (!root_ || !other.root_) return false;
+
+    std::queue<node<T> *> q1, q2; 
+    q1.push(root_); q2.push(other.root_);
+
+
+    while (!q1.empty() && !q2.empty()) {
+        node<T> *curr1 = q1.front(); q1.pop();
+        node<T> *curr2 = q2.front(); q2.pop();
+
+        if (curr1->val_ != curr2->val_) return false;
+
+        if (curr1->left_) q1.push(curr1->left_);
+        if (curr1->right_) q1.push(curr1->right_);
+        if (curr2->left_) q2.push(curr2->left_);
+        if (curr2->left_) q2.push(curr2->right_);
+
+        if ((curr1->left && !curr2->left_) ||
+                (!curr1->left_ && curr2->left_) ||
+                (curr1->right_ && !curr2->right_) ||
+                (!curr1->right_ && curr2->right_)) return false;
+    }
+    
+    return true;
 }
 
 template <typename T>
