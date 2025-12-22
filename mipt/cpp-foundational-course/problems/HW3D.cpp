@@ -4,6 +4,8 @@
     You are given a set of points in three-dimensional space.
     Each three consecutive points define a triangle.
     Determine how many pairs of triangles intersect.
+    
+    compiling: g++ -DTEST_MODE -O2 HW3D.cpp -lgtest -lgtest_main -pthread
 */
 
 #include <cmath>
@@ -11,6 +13,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
+#include <gtest/gtest.h>
 
 template<typename T>
 class Point {
@@ -20,7 +23,11 @@ public:
     Point() = default;
     Point(T x, T y, T z) : x_(x), y_(y), z_(z) {}
     ~Point() = default;
-    
+
+    const T x() const { return x_; }
+    const T y() const { return y_; }
+    const T z() const { return z_; }
+
     void print() const { std::cout << "X: " << x_ << ", Y: " << y_ << ", Z: " << z_; }
     bool valid() { return (std::isnan(x_) || std::isnan(y_) || std::isnan(z_)) == false; }
 
@@ -85,6 +92,7 @@ template<typename T>
 double signed_distance(const Point<T>& normal, const Point<T>& plane_point, const Point<T>& p);
 
 int main(int argc, char **argv) {
+#ifndef TEST_MODE
     std::vector<Point<double>> points = get_input<double>(argc, argv);
     std::size_t N = points.size() / 3;
     std::vector<Triangle<double>> triangles;
@@ -100,8 +108,11 @@ int main(int argc, char **argv) {
         }
     }
     std::cout << "Collisions: " << collisions << ".\n";
-    
     return 0;
+#else    
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+#endif
 }
 
 template<typename T>
@@ -143,3 +154,64 @@ std::vector<Point<T>> get_input(int argc, char **argv) {
     }
     return points;
 }
+
+TEST(PointTest, Subtraction) {
+    Point<double> a(3, 2, 1);
+    Point<double> b(1, 1, 1);
+
+    Point<double> c = a - b;
+    
+    EXPECT_DOUBLE_EQ(c.x(), 2);
+    EXPECT_DOUBLE_EQ(c.y(), 1);
+    EXPECT_DOUBLE_EQ(c.z(), 0);
+}
+
+TEST(PointTest, InnerProduct) {
+    Point<double> a(1, 0, 0);
+    Point<double> b(0, 1, 0);
+
+    double dot_product = Point<double>::inner_product(a, b);
+    EXPECT_DOUBLE_EQ(dot_product, 0.f);
+}
+
+TEST(PointTest, CrossProduct) {
+    Point<double> a(1, 0, 0);
+    Point<double> b(0, 1, 0);
+
+    Point<double> c = Point<double>::cross(a, b);
+
+    EXPECT_DOUBLE_EQ(c.x(), 0);
+    EXPECT_DOUBLE_EQ(c.y(), 0);
+    EXPECT_DOUBLE_EQ(c.z(), 1);
+}
+
+TEST(TriangleTest, NoCollisionSeparatedByPlane) {
+    Point<double> a1(0, 0, 0);
+    Point<double> b1(1, 0, 0);
+    Point<double> c1(0, 1, 0);
+
+    Point<double> a2(0, 0, 5);
+    Point<double> b2(1, 0, 5);
+    Point<double> c2(0, 1, 5);
+
+    Triangle<double> t1(a1, b1, c1);
+    Triangle<double> t2(a2, b2, c2);
+
+    EXPECT_FALSE(Triangle<double>::collide(t1, t2));
+}
+
+TEST(TriangleTest, Collision) {
+    Point<double> a1(0, 0, 0);
+    Point<double> b1(2, 0, 0);
+    Point<double> c1(0, 2, 0);
+
+    Point<double> a2(0.5, 0.5, -1);
+    Point<double> b2(0.5, 0.5,  1);
+    Point<double> c2(2,   2,   1);
+
+    Triangle<double> t1(a1, b1, c1);
+    Triangle<double> t2(a2, b2, c2);
+
+    EXPECT_TRUE(Triangle<double>::collide(t1, t2));
+}
+
