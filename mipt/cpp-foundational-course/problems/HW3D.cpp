@@ -1,4 +1,10 @@
 // C++ foundational course, MIPT, 2021-2022
+/*
+                        TASK HW3D
+    You are given a set of points in three-dimensional space.
+    Each three consecutive points define a triangle.
+    Determine how many pairs of triangles intersect.
+*/
 
 #include <cmath>
 #include <cstddef>
