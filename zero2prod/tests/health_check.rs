@@ -1,8 +1,13 @@
-use std::net::TcpListener;
+use std::{env, net::TcpListener, sync::LazyLock};
 
+use secrecy::{ExposeSecret, SecretString};
 use sqlx::{Connection, PgConnection, PgPool};
 use uuid::Uuid;
-use zero2prod::configuration::{DatabaseSettings, get_configuration};
+
+use zero2prod::{
+    configuration::{DatabaseSettings, get_configuration},
+    telemetry::{get_subscriber, init_subscriber},
+};
 
 #[tokio::test]
 async fn health_check_works() {
@@ -28,7 +33,7 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
     let test_app = spawn_app().await;
     let configuration = get_configuration().expect("Failed to read configuration!");
     let connection_string = configuration.database.connection_string();
-    let mut connection = PgConnection::connect(&connection_string)
+    let mut connection = PgConnection::connect(&connection_string.expose_secret())
         .await
         .expect("Failed to connect to Postgres!");
     let client = reqwest::Client::new();
@@ -86,12 +91,26 @@ async fn subscriber_returns_a_400_when_data_is_missing() {
     }
 }
 
+static TRACING: LazyLock<()> = LazyLock::new(|| {
+    let (default_filter_level, subscriber_name) = (String::from("info"), String::from("test"));
+
+    if env::var("TEST_LOG").is_ok() {
+        let subscriber = get_subscriber(subscriber_name, default_filter_level, std::io::stdout);
+        init_subscriber(subscriber);
+    } else {
+        let subscriber = get_subscriber(subscriber_name, default_filter_level, std::io::sink);
+        init_subscriber(subscriber);
+    }
+});
+
 pub struct TestApp {
     pub address: String,
     pub db_pool: PgPool,
 }
 
 async fn spawn_app() -> TestApp {
+    LazyLock::force(&TRACING);
+
     let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind random port!");
     let port = listener
         .local_addr()
@@ -117,19 +136,20 @@ pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
     let maintenance_settings = DatabaseSettings {
         database_name: "postgres".to_string(),
         username: "postgres".to_string(),
-        password: "password".to_string(),
+        password: SecretString::new("password".to_string().into()),
         ..config.clone()
     };
-    let mut connection = PgConnection::connect(&maintenance_settings.connection_string())
-        .await
-        .expect("Failed to connect to Postgres!");
+    let mut connection =
+        PgConnection::connect(&maintenance_settings.connection_string().expose_secret())
+            .await
+            .expect("Failed to connect to Postgres!");
     sqlx::query(&format!(r#"CREATE DATABASE "{}";"#, config.database_name))
         .execute(&mut connection)
         .await
         .expect("Failed to create database!");
 
     // Migrate database
-    let connection_pool = PgPool::connect(&config.connection_string())
+    let connection_pool = PgPool::connect(&config.connection_string().expose_secret())
         .await
         .expect("Failed to connect to Postgres!");
 
