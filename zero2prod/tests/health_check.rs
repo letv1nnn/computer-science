@@ -1,11 +1,11 @@
 use std::{env, net::TcpListener, sync::LazyLock};
 
-use secrecy::{ExposeSecret, SecretString};
+use secrecy::SecretString;
 use sqlx::{Connection, PgConnection, PgPool};
 use uuid::Uuid;
 
 use zero2prod::{
-    configuration::{DatabaseSettings, get_configuration},
+    configuration::{get_configuration, DatabaseSettings},
     telemetry::{get_subscriber, init_subscriber},
 };
 
@@ -32,8 +32,7 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
     // Arrange
     let test_app = spawn_app().await;
     let configuration = get_configuration().expect("Failed to read configuration!");
-    let connection_string = configuration.database.connection_string();
-    let mut connection = PgConnection::connect(&connection_string.expose_secret())
+    let mut connection = PgConnection::connect_with(&configuration.database.connection_options())
         .await
         .expect("Failed to connect to Postgres!");
     let client = reqwest::Client::new();
@@ -139,17 +138,16 @@ pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
         password: SecretString::new("password".to_string().into()),
         ..config.clone()
     };
-    let mut connection =
-        PgConnection::connect(&maintenance_settings.connection_string().expose_secret())
-            .await
-            .expect("Failed to connect to Postgres!");
+    let mut connection = PgConnection::connect_with(&maintenance_settings.connection_options())
+        .await
+        .expect("Failed to connect to Postgres!");
     sqlx::query(&format!(r#"CREATE DATABASE "{}";"#, config.database_name))
         .execute(&mut connection)
         .await
         .expect("Failed to create database!");
 
     // Migrate database
-    let connection_pool = PgPool::connect(&config.connection_string().expose_secret())
+    let connection_pool = PgPool::connect_with(config.connection_options())
         .await
         .expect("Failed to connect to Postgres!");
 
