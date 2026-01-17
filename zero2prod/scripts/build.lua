@@ -56,3 +56,4 @@ if not task or not tasks[task] then
 end
 
 tasks[task]()
+os.exit(0)
