@@ -1,4 +1,4 @@
-# Assembly language. Shifts, GDB.
+# Assembly language & GDB.
 
 ## GDB
 
