@@ -10,5 +10,6 @@ main:
 
     call    finish
 
+    .data
 var:
     .quad    12
