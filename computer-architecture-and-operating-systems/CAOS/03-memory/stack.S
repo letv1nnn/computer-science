@@ -43,8 +43,8 @@ main:
     // mov     rdi, [rsp]
     // call    writei64
 
-    sub     rsp, 100 * 8
-
+    // int64_t arr[100], on the stack
+    sub     rsp, 100 * 8 
 
     mov     rdi, [rsp + 8]
     call    writei64
