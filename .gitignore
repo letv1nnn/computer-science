@@ -12,6 +12,7 @@
 
 # bins
 *.out
+*.o
 
 # VS Code
 .vscode/
