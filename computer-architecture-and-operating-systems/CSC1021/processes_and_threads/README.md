@@ -4,7 +4,7 @@
 
 ### ***Memory Layout of a Program***
 
-![virtual memory layout](/img/vm.jpg)
+![virtual-memory-layout](./img/vm.jpg)
 
 ### ***Process State***
 - ***New***: The process is being created
@@ -13,7 +13,7 @@
 - ***Ready***: The process is waiting to be assigned to a processor
 - ***Terminated***: The process has finished execution
 
-![process states](/img/ps.jpg)
+![process-states](./img/ps.jpg)
 
 
 ### ***Process Control Block (PCB)***
@@ -54,6 +54,6 @@ Cooperating processes can affect or be affected by other processes and even shar
 
 Cooperating processes need ***inter process communication*** (IPC)
 
-![communication models](/img/cm.jpg)
+![communication-models](./img/cm.jpg)
 
 
