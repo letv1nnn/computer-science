@@ -72,7 +72,39 @@ int main(int argc, char **argv) {
 }
 ```
 
-todo!();
+Process creation starts with `fork()`, it triggers a system call that creates a new process by duplicating the caller. Specifically it calls the `clone()` syscall to clone a procecss (creating a child process).
+
+![clone-syscall](./img/sc.png)
+
+***What do we mean by "duplicating the caller"?***
+
+After duplication, parent and child processes, both now have their own page tables, own PCB, registers, file descriptors, but same virtual addresses.
+
+```cgi
+Parent VA 0x4000 ─┐
+                  ├──> Physical Frame #123
+Child  VA 0x4000 ─┘   (shared, read-only)
+```
+
+Everything is shared initially.
+
+***Copy-On-Write*** (COW)
+
+Kernel marks these pages as `READ-ONLY + COW flag`, thus if neither writes, no copying ever happens, If one writes, page fault occurs, kernel copies that page and writer gets private copy.
+
+***Child writes to heap page*** - kernel copies 4KB page, child gets new physical frame, parent still has old one
+
+***Before***
+```cgi
+Parent heap ─┐
+             ├── Physical Page A
+Child heap  ─┘
+```
+***After***
+```cgi
+Parent heap ── Physical Page A
+Child heap  ── Physical Page B (copy)
+```
 
 ### ***Process Termination***
 
@@ -84,7 +116,7 @@ Parent may terminate the execution of children process by sending a signal via `
 
 ### ***Processes Observation & Other Commands***
 - ***Process***: `ps`, `pstree`, `top`
-- ***Binary***: `strace`, `objdump`, `valgrind` 
+- ***Binary***: `strace`, `objdump`, `valgrind`, `size
 
 ### ***Interprocess Communication***
 
