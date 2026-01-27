@@ -4,6 +4,8 @@
 
 ### ***Memory Layout of a Program***
 
+>NOTE: you can use `size [binary]` to see mem layout
+
 ![virtual-memory-layout](./img/vm.jpg)
 
 ### ***Process State***
@@ -38,6 +40,39 @@ Everything starts from ***systemd*** process (run `pstree`).
 - `exec()` replaces the current process image with a new program (loads a new program into that same process), (`execl()`, `execp()`, `execv()`, `execvp()`).
 - `wait()` parent waits for child to finish.
 
+### ***What's happenning when we are calling fork?***
+```c
+#include <stdio.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+int main(int argc, char **argv) {
+    
+    printf("[parent process] - start (PID: %d)\n", getpid());
+    pid_t pid = fork();
+    int status;
+
+    /* The parent gets the child PID, and the child PID gets 0. */
+
+    if (pid < 0) {                              /* error occured */
+        fprintf(stderr, "Fork failed!\n");
+        return 1;
+    } else if (pid == 0) {                      /* child process */
+        printf("[child process] - start (CURRENT PID: %d, PARENT PID: %d)\n", getpid(), getppid());
+        execlp("/bin/ls", "ls", NULL);
+        return 0;
+    } else {                                    /* parent process */
+        pid_t cpid  = wait(&status);   /* parent will wait for the child to complete */
+        printf("[child process] - complete, PID: %d, STATUS: %d\n", cpid, status);
+        printf("[parent process] - completing... (PID: %d)\n", getpid());
+    }
+    
+
+    return 0;
+}
+```
+
+todo!();
 
 ### ***Process Termination***
 
@@ -46,6 +81,10 @@ Parent may terminate the execution of children process by sending a signal via `
 
 - ***orphan process*** - a child whose parent terminates before it finishes.
 - ***zombie process*** - a child process that has finished execution but whose parent has NOT called `wait()` yet.
+
+### ***Processes Observation & Other Commands***
+- ***Process***: `ps`, `pstree`, `top`
+- ***Binary***: `strace`, `objdump`, `valgrind` 
 
 ### ***Interprocess Communication***
 
