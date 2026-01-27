@@ -8,6 +8,35 @@
 
 ![virtual-memory-layout](./img/vm.jpg)
 
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+static char bss_segment;
+static long long data_segment = 42;
+
+int main(int argc, char **argv) {
+    char *str = (char *)calloc(5, sizeof(char));
+    int num = 0x0DDC0FFEE;
+
+    printf("-------------------------------------0x00000000\n");
+    printf("Data segment: %p\n", &data_segment);
+    printf("BSS: %p\n", &bss_segment);
+    printf("HEAP segment: %p\n", str);
+    printf("STACK segment: %p\n", &num);
+    printf("arg, environment segment: %p\n", argv);
+    printf("-------------------------------------0x80000000\n");
+
+    free(str);
+    return 0;
+}
+```
+
+Compiling and calling `size ./a.out` produces:
+
+![mem-layout](./img/sb.png)
+
 ### ***Process State***
 - ***New***: The process is being created
 - ***Running***: Instructions are being executed
@@ -78,7 +107,7 @@ Process creation starts with `fork()`, it triggers a system call that creates a 
 
 ***What do we mean by "duplicating the caller"?***
 
-After duplication, parent and child processes, both now have their own page tables, own PCB, registers, file descriptors, but same virtual addresses.
+After duplication, parent and child processes, both now have their own page tables, own PCB, registers, file descriptors (references), but same virtual addresses.
 
 ```cgi
 Parent VA 0x4000 ─┐
@@ -90,7 +119,7 @@ Everything is shared initially.
 
 ***Copy-On-Write*** (COW)
 
-Kernel marks these pages as `READ-ONLY + COW flag`, thus if neither writes, no copying ever happens, If one writes, page fault occurs, kernel copies that page and writer gets private copy.
+Kernel marks these pages as `READ-ONLY + COW flag`, thus if neither writes, no copying ever happens. If one writes, page fault occurs, kernel copies that page and writer gets private copy.
 
 ***Child writes to heap page*** - kernel copies 4KB page, child gets new physical frame, parent still has old one
 
@@ -105,6 +134,19 @@ Child heap  ─┘
 Parent heap ── Physical Page A
 Child heap  ── Physical Page B (copy)
 ```
+
+***Child Is Put In Ready Queue***
+Scheduler maarks child as `READY` and then inserts into `READY QUEUE`.
+
+***Summary of process creation with `fork`***
+1. User calls fork()
+2. CPU traps into kernel
+3. Kernel allocates PCB (task_struct)
+4. Virtual memory duplicated (COW)
+5. File descriptors copied
+6. CPU context copied
+7. Child inserted into ready queue
+8. Scheduler runs parent & child
 
 ### ***Process Termination***
 
