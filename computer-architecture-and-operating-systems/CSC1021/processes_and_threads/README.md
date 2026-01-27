@@ -28,6 +28,8 @@ int main(int argc, char **argv) {
     printf("arg, environment segment: %p\n", argv);
     printf("-------------------------------------0x80000000\n");
 
+    assert((long long *)&data_segment < (long long *)&bss_segment < (long long *)str < (long long *)&num < (long long *)argv);
+
     free(str);
     return 0;
 }
