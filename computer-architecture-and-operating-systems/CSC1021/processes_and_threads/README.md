@@ -138,6 +138,7 @@ Child heap  ── Physical Page B (copy)
 ```
 
 ***Child Is Put In Ready Queue***
+
 Scheduler maarks child as `READY` and then inserts into `READY QUEUE`.
 
 ***Summary of process creation with `fork`***
@@ -159,8 +160,8 @@ Parent may terminate the execution of children process by sending a signal via `
 - ***zombie process*** - a child process that has finished execution but whose parent has NOT called `wait()` yet.
 
 ### ***Processes Observation & Other Commands***
-- ***Process***: `ps`, `pstree`, `top`
-- ***Binary***: `strace`, `objdump`, `valgrind`, `size
+- ***Process***: `ps`, `pstree`, `top`, `ulimit`
+- ***Binary***: `strace`, `objdump`, `valgrind`, `size`
 
 ### ***Interprocess Communication***
 
