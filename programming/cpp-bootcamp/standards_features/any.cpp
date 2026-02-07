@@ -26,6 +26,6 @@ void any_example() {
 }
 
 int main(int argc, char **argv) {
-
+    any_example();
     return 0;
 }

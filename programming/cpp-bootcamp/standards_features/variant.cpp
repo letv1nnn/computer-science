@@ -21,6 +21,6 @@ void variant_example() {
 }
 
 int main(int argc, char **argv) {
-
+    variant_example();
     return 0;
 }
