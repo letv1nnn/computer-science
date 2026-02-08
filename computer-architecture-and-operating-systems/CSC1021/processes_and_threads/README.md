@@ -40,10 +40,14 @@ Compiling and calling `size ./a.out` produces:
 ![mem-layout](./img/sb.png)
 
 ### ***Process State***
+
+A CPU core can only execute one process at a time, but many processes compete for it. 
+Process states help the operating system track what each process is doing and decide which process should get a core next.
+
 - ***New***: The process is being created
+- ***Ready***: The process is waiting to be assigned to a processor
 - ***Running***: Instructions are being executed
 - ***Waiiting***: The process is waiting for some event to occure
-- ***Ready***: The process is waiting to be assigned to a processor
 - ***Terminated***: The process has finished execution
 
 ![process-states](./img/ps.jpg)
@@ -62,8 +66,6 @@ Process scheduler selects among available processes for next execution on CPU co
 ### ***Context Switch***
 When CPU switches to another process, the system must save the state of the old process and load the saved state for the new process. The ***Context*** of a process represented in the ***PCB***.
 
-
-Everything starts from ***systemd*** process (run `pstree`).
 
 ### ***Process Creation***
 
@@ -139,7 +141,7 @@ Child heap  ── Physical Page B (copy)
 
 ***Child Is Put In Ready Queue***
 
-Scheduler maarks child as `READY` and then inserts into `READY QUEUE`.
+Scheduler marks child as `READY` and then inserts into `READY QUEUE`.
 
 ***Summary of process creation with `fork`***
 1. User calls fork()
