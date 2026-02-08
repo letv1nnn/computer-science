@@ -1,4 +1,4 @@
-# ***Peocesses & Threads***
+# ***Processes***
 
 ***Process*** a program in execution. Process execution progresses in sequential feshion (i.e. no parallel execution of instructions of a single process).
 
@@ -239,3 +239,5 @@ int main(int argc, char **argv) {
     return 0;
 }
 ```
+
+Good article about signals: [Understanding Signals in the C Language](https://medium.com/@razika28/signals-ad83f38f80b6)
