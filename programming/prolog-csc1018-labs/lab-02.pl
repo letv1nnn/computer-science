@@ -9,8 +9,24 @@ MyLibrary = [
 ].
 */
 
+% Relationships
 holiday(_, []).
 holiday(book(HT, HA, _, _), [book(Title, Author, Genre, NumberOfPages)|_]) :-
     HT = Title, HA = Author, NumberOfPages < 400, Genre \== study, Genre \== reference.
 holiday(Book, [_|Tail]) :- holiday(Book, Tail).
+
+revision(_, []).
+revision(book(HT, HA, _, _), [book(Title, Author, Genre, NumberOfPages)|_]) :-
+    HT = Title, HA = Author, NumberOfPages > 300, (Genre == study ; Genre == reference).
+revision(Book, [_|Tail]) :- revision(Book, Tail).
+
+literary(_, []).
+literary(book(HT, HA, _, _), [book(Title, Author, Genre, _)|_]) :-
+    HT = Title, HA = Author,  Genre == drama.
+literary(Book, [_|Tail]) :- literary(Book, Tail).
+
+leisure(_, []).
+leisure(book(HT, HA, _, _), [book(Title, Author, Genre, _)|_]) :-
+    HT = Title, HA = Author, (Genre == comedy ; Genre == fiction).
+leisure(Book, [_|Tail]) :- leisure(Book, Tail).
 
