@@ -11,9 +11,9 @@ Creation design patterns focus on object creation.
 - [Factory Method](https://github.com/letv1nnn/computer-science/blob/main/programming/gof-csc1031/factory-method/FactoryMethod.java) - provides an interface for creating objects in a superclass, but allows subclasses to alter the type of objects that will be created.
 
 ### Structural
-Structural design pattens focus on class abd object composition.
+Structural design pattens focus on class and object composition.
 - [Adapter](https://github.com/letv1nnn/computer-science/blob/main/programming/gof-csc1031/adapter/Adapter.java) - allows two incompatible interfaces to work together.
-- Dectorator
+- [Dectorator](https://github.com/letv1nnn/computer-science/blob/main/programming/gof-csc1031/decorator/Decorator.java) - lets you attach new behaviors to objects by placing these objects inside special wrapper objects that contain the behaviors ("add features at runtime like layers").
 
 ### Behavioral
 Behavioral design patterns focus on communication between objects.
