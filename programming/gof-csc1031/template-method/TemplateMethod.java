@@ -21,10 +21,10 @@ abstract class GameAI {
         attack();
     }
 
-    public abstract void collectResources()
-    public abstract void buildStructures()
-    public abstract void buildUnits()
-    public abstract void attack()
+    public abstract void collectResources();
+    public abstract void buildStructures();
+    public abstract void buildUnits();
+    public abstract void attack();
 }
 
 // Concrete classes have to implement all abstract operations of
