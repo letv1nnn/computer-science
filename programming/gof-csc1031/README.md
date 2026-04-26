@@ -21,5 +21,5 @@ Behavioral design patterns focus on communication between objects.
 - [Memento](https://github.com/letv1nnn/computer-science/tree/main/programming/gof-csc1031/memento) -  saves and restores an object's state without breaking encapsulation.
 - [Observer](https://github.com/letv1nnn/computer-science/blob/main/programming/gof-csc1031/observer/Observer.java) - lets you define a subscription mechanism to notify multiple objects about any events that happen to the object they are observing.
 - [Strategy](https://github.com/letv1nnn/computer-science/blob/main/programming/gof-csc1031/strategy/Strategy.java) - lets you define a family of algorithms, put each of them into a separate class, and make their objects interchangeable.
-- [Template Method]() - description...
+- [Template Method](https://github.com/letv1nnn/computer-science/blob/main/programming/gof-csc1031/template-method/TemplateMethod.java) - defines the skeleton of an algorithm in the superclass but lets subclasses override specific steps of the algorithm without changing its structure.
 - [Chain of Responsibility]() - description...
