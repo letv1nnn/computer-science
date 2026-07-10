@@ -59,57 +59,43 @@ vectorAngle v u
     | length v /= length u = error "dimension mismatch"
     | otherwise = acos ( dotProduct v u / (vectorNorm v * vectorNorm u) )
 
--- =============================================================================
--- PART 3: PATTERN MATCHING & GUARDS (Ch04 — Syntax in Functions)
--- =============================================================================
-
--- | Cross product of two 3D vectors. Use pattern matching on the lists.
--- >>> crossProduct [1,0,0] [0,1,0]
--- [0.0,0.0,1.0]
--- >>> crossProduct [2,3,4] [5,6,7]
--- [-3.0,6.0,-3.0]
 crossProduct :: [Double] -> [Double] -> [Double]
-crossProduct = undefined
+crossProduct v u
+    | length v /= length u && length v /= 3 = error "vectors must be in 3 dimensions"
+    | otherwise = [wx, wy, wz]
+    where wx = v!!1 * u!!2 - v!!2 * u!!1
+          wy = v!!2 * u!!0 - v!!0 * u!!2
+          wz = v!!0 * u !!1 - v!!1 * u!!0
 
--- | Classify a vector by its properties using guards.
---   "zero"       if all components are 0
---   "unit"       if norm == 1 (within epsilon 1e-9)
---   "sparse"     if more than half the components are 0
---   "dense"      otherwise
--- >>> classifyVector [0,0,0]
--- "zero"
--- >>> classifyVector [1,0,0]
--- "unit"
--- >>> classifyVector [0,0,0,5]
--- "sparse"
--- >>> classifyVector [1,2,3]
--- "dense"
 classifyVector :: [Double] -> String
-classifyVector = undefined
+classifyVector v
+    | all (==0) v = "zero"
+    | norm == 1 = "unit"
+    | zeros * 2 > n = "sparse"
+    | otherwise = "dense"
+    where norm = vectorNorm v
+          zeros = length [ x | x <- v, x == 0 ]
+          n = length v
 
--- | Determine the relationship between two vectors using guards.
---   "parallel"      if cross product is zero (3D only) or one is scalar multiple of other
---   "perpendicular" if dot product is 0 (within epsilon 1e-9)
---   "acute"         if dot product > 0
---   "obtuse"        if dot product < 0
--- >>> vectorRelation [1,0,0] [0,1,0]
--- "perpendicular"
--- >>> vectorRelation [1,2,3] [2,4,6]
--- "parallel"
--- >>> vectorRelation [1,1,0] [1,0,0]
--- "acute"
 vectorRelation :: [Double] -> [Double] -> String
-vectorRelation = undefined
+vectorRelation v u
+      | isParallel    = "parallel"
+      | abs dp < 1e-9 = "perpendicular"
+      | dp > 0        = "acute"
+      | otherwise     = "obtuse"
+      where dp = dotProduct v u
+            pairs = zip v u
+            ratios = [a / b | (a, b) <- pairs, b /= 0]
+            isParallel = case ratios of
+                []    -> True
+                (r:_) -> all (\x -> abs (x - r) < 1e-9) ratios
 
--- | Project vector u onto vector v.
---   proj_v(u) = ((u · v) / (v · v)) * v
---   Use where or let bindings.
--- >>> projectOnto [3,4] [1,0]
--- [3.0,0.0]
--- >>> projectOnto [1,2,3] [0,0,1]
--- [0.0,0.0,3.0]
 projectOnto :: [Double] -> [Double] -> [Double]
-projectOnto = undefined
+projectOnto v u
+    | length v /= length u = error "dimension mismatch"
+    | otherwise = (vu / uu) `scalarMul` u
+    where vu = dotProduct u v
+          uu = dotProduct u u
 
 -- | Extract a specific element from a matrix using case expression.
 --   Rows and columns are 0-indexed.
@@ -119,8 +105,13 @@ projectOnto = undefined
 -- >>> matrixGet [[1,2],[3,4]] 2 0
 -- Nothing
 matrixGet :: [[Double]] -> Int -> Int -> Maybe Double
-matrixGet = undefined
-
+matrixGet mtrx row col = 
+    case drop row mtrx of 
+        [] -> Nothing
+        (r:_) -> case drop col r of 
+            [] -> Nothing
+            (x:_) -> Just x
+                                                                
 
 -- =============================================================================
 -- PART 4: MATRIX OPERATIONS WITH RECURSION (Ch05 — Recursion)
