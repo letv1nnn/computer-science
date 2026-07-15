@@ -1,5 +1,7 @@
 # gRPC
 
+### useful resources
+- [How RPC Actually Works](https://newsletter.systemdesign.one/p/how-rpc-works) (article)
 
 ### example
 
