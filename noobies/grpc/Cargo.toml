@@ -1,0 +1,21 @@
+[package]
+name = "grpc"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "payments-server"
+path = "src/server.rs"
+
+[[bin]]
+name = "payments-client"
+path = "src/client.rs"
+
+[dependencies]
+tonic = "0.12"  # gRPC impl
+prost = "0.13" # protocol buffer impl
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+
+[build-dependencies]
+tonic-build = "0.12"
+
