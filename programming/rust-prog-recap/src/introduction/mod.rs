@@ -1,3 +1,5 @@
+// 1. Введение (Програмирование на Rust)
+
 #![allow(dead_code)]
 
 use std::io::Write;
@@ -40,6 +42,7 @@ fn integers() {
 // `cargo run` will panic, but `cargo run --release` will not.
 fn overflow() {
     let x = i32::MAX;
+    #[allow(arithmetic_overflow)]
     let y = x + 1;
     println!("{}", y);
 }
