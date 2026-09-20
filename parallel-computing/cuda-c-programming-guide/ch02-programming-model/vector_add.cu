@@ -6,9 +6,15 @@
 void cuda_check(const cudaError_t &err, const std::string &file, std::size_t line);
 
 // kernel definition
-__global__ void vec_add(const float *xs, const float *ys, float *out, std::size_t N) {
+__global__ void vec_add(const float *xs, const float *ys, float *out, std::size_t n) {
     std::size_t i{blockIdx.x * blockDim.x + threadIdx.x};
-    if (i < N) out[i] = xs[i] + ys[i];
+    if (i < n) out[i] = xs[i] + ys[i];
+}
+
+__global__ void mat_add(const float **xs, const float **ys, float **out, std::size_t m, std::size_t n) {
+    std::size_t y{blockIdx.y * blockDim.y + threadIdx.y},
+        x{blockIdx.x * blockDim.x + threadIdx.x};
+    if (y < m && x < n) out[y][x] = xs[y][x] + ys[y][x];
 }
 
 int main(int argc, char **argv) {
@@ -39,6 +45,11 @@ int main(int argc, char **argv) {
 
     // kernel invocation with 1 block and 16 threads
     vec_add<<<1, N>>>(d_xs, d_ys, d_out, N);
+
+    // kernel invocation with one block of N * N * 1 threads
+    // std::size_t num_blocks{1};
+    // dim3 threads_per_block{N, N};
+    // mat_add<<<num_blocks, threads_per_block>>>(xs, ys, out, m, n);
 
     err = cudaGetLastError();
     CUDA_CHECK(err);
