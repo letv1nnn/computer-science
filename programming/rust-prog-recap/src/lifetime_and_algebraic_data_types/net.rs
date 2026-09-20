@@ -1,3 +1,5 @@
+// 2. Время жизни, ADT (Програмирование на Rust)
+
 /// Describes the purpose of an IPv4 address.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum IpV4Purpose {

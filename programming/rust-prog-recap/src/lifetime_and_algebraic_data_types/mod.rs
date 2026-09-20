@@ -77,7 +77,7 @@ fn never_and_unit_types() {
 
     let x = return;
 
-    // panic!(); for bag singaling
+    // panic!(); for bag signaling
     // unimplemented!(); for not yet written code
     // unreachable!() for impossible operation
 
